@@ -1,0 +1,320 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #10121c;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 35px 15px;
+    background: linear-gradient(135deg, #6638d6, #a13ed1);
+}
+
+header h1 {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+header p {
+    margin-top: 8px;
+    color: #eee0ff;
+}
+
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 25px 18px;
+}
+
+section {
+    margin-bottom: 35px;
+}
+
+h2 {
+    font-size: 23px;
+    margin-bottom: 12px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.stat {
+    background: #202438;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    border: 1px solid #353b56;
+}
+
+.stat span {
+    display: block;
+    color: #b9c0d8;
+    font-size: 14px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 25px;
+    margin-top: 8px;
+    color: #f9cf54;
+}
+
+.clicker {
+    text-align: center;
+    background: #202438;
+    padding: 30px 15px;
+    border-radius: 18px;
+    border: 1px solid #353b56;
+}
+
+.clicker p {
+    color: #b9c0d8;
+}
+
+.coin {
+    margin: 20px 0;
+    border: none;
+    background: transparent;
+    font-size: 100px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    filter: drop-shadow(0 0 15px #f6c445);
+}
+
+.coin:hover {
+    transform: scale(1.1);
+}
+
+.coin:active {
+    transform: scale(0.85) rotate(15deg);
+}
+
+.clicker h3 {
+    color: #f9cf54;
+}
+
+.shop {
+    text-align: center;
+}
+
+.shop > p,
+.collection > p {
+    color: #aeb5ce;
+    margin-bottom: 18px;
+}
+
+.box-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.box-card {
+    padding: 25px 15px;
+    border-radius: 17px;
+    background: #202438;
+    border: 2px solid #424862;
+    transition: transform 0.2s;
+}
+
+.box-card:hover {
+    transform: translateY(-6px);
+}
+
+.basic {
+    border-color: #9c9c9c;
+}
+
+.premium {
+    border-color: #a855f7;
+}
+
+.legendary {
+    border-color: #f5bd39;
+}
+
+.box-icon {
+    font-size: 65px;
+    margin-bottom: 10px;
+}
+
+.box-card h3 {
+    margin-bottom: 8px;
+}
+
+.price {
+    color: #f9cf54;
+    font-size: 25px;
+    font-weight: 800;
+    margin: 10px 0;
+}
+
+.box-card p:not(.price) {
+    color: #b9c0d8;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+.box-card button {
+    margin-top: 18px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 9px;
+    background: #7447dc;
+    color: white;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.box-card button:hover {
+    background: #956cf2;
+}
+
+.result-section {
+    text-align: center;
+}
+
+.result {
+    background: #202438;
+    border: 2px dashed #555d7b;
+    border-radius: 16px;
+    padding: 30px 15px;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.result-food {
+    font-size: 65px;
+    animation: reveal 0.5s ease;
+}
+
+.result-name {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.result-rarity {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+@keyframes reveal {
+    from {
+        transform: scale(0) rotate(-30deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
+
+.collection {
+    text-align: center;
+}
+
+.food-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 13px;
+}
+
+.food-card {
+    background: #202438;
+    border: 2px solid #414862;
+    border-radius: 13px;
+    padding: 18px 10px;
+}
+
+.food-card .food-icon {
+    font-size: 42px;
+    margin-bottom: 8px;
+}
+
+.food-card h3 {
+    font-size: 14px;
+}
+
+.food-card p {
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 700;
+}
+
+.food-card .quantity {
+    color: #b9c0d8;
+    font-weight: 400;
+}
+
+.common { color: #bdbdbd; }
+.uncommon { color: #4ade80; }
+.rare { color: #60a5fa; }
+.epic { color: #c084fc; }
+.legendary-text { color: #facc15; }
+.mythic { color: #fb7185; }
+
+.food-card.common-border { border-color: #777; }
+.food-card.uncommon-border { border-color: #4ade80; }
+.food-card.rare-border { border-color: #60a5fa; }
+.food-card.epic-border { border-color: #c084fc; }
+.food-card.legendary-border { border-color: #facc15; }
+.food-card.mythic-border { border-color: #fb7185; }
+
+.reset {
+    background: #d94343;
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+}
+
+.reset:hover {
+    background: #f05b5b;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3b8;
+}
+
+footer p {
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+@media (max-width: 700px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .box-container {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 25px;
+    }
+}

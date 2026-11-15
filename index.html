@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Box Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>🍔 Food Box Simulator</h1>
+        <p>Click coins, open boxes, and collect foods!</p>
+    </header>
+
+    <main>
+        <section class="stats">
+            <div class="stat">
+                <span>💰 Money</span>
+                <strong id="money">$0</strong>
+            </div>
+            <div class="stat">
+                <span>🍔 Foods Unlocked</span>
+                <strong id="foodCount">0</strong>
+            </div>
+            <div class="stat">
+                <span>📦 Boxes Opened</span>
+                <strong id="boxCount">0</strong>
+            </div>
+        </section>
+
+        <section class="clicker">
+            <h2>Earn Money</h2>
+            <p>Click the coin to earn money!</p>
+            <button id="coinButton" class="coin">🪙</button>
+            <h3>+$<span id="clickValue">1</span> per click</h3>
+        </section>
+
+        <section class="shop">
+            <h2>📦 Food Boxes Shop</h2>
+            <p>More expensive boxes have better luck!</p>
+
+            <div class="box-container">
+
+                <div class="box-card basic">
+                    <div class="box-icon">📦</div>
+                    <h3>Basic Box</h3>
+                    <p class="price">$25</p>
+                    <p>Luck: Normal</p>
+                    <p>Good for beginners!</p>
+                    <button onclick="openBox('basic')">Open Box</button>
+                </div>
+
+                <div class="box-card premium">
+                    <div class="box-icon">🎁</div>
+                    <h3>Premium Box</h3>
+                    <p class="price">$100</p>
+                    <p>Luck: x1.7</p>
+                    <p>Better rare food chances!</p>
+                    <button onclick="openBox('premium')">Open Box</button>
+                </div>
+
+                <div class="box-card legendary">
+                    <div class="box-icon">💎</div>
+                    <h3>Legendary Box</h3>
+                    <p class="price">$300</p>
+                    <p>Luck: x2.6</p>
+                    <p>Best chances for rare foods!</p>
+                    <button onclick="openBox('legendary')">Open Box</button>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="result-section">
+            <h2>🎉 Box Opening Result</h2>
+            <div id="result" class="result">
+                <p>Open a box to discover a food!</p>
+            </div>
+        </section>
+
+        <section class="collection">
+            <h2>📚 Your Food Collection</h2>
+            <p>Collect every food and discover all rarities!</p>
+            <div id="foodCollection" class="food-grid"></div>
+        </section>
+
+        <footer>
+            <button id="resetButton" class="reset">Reset Game</button>
+            <p>Food Box Simulator © 2026</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
