@@ -1,450 +1,156 @@
-
-// =====================================
-// FOOD BOX SIMULATOR
-// =====================================
-
+// Game State
 let money = 0;
-let boxesOpened = 0;
-let inventory = {};
 let clickValue = 1;
+const unlockedFoods = new Set();
 
-// =====================================
-// BOX SETTINGS
-// =====================================
+// Food Database with Rarities and Click Power Bonuses
+const foods = [
+    { id: 'apple', name: 'Crisp Apple', emoji: '🍎', rarity: 'Common', bonus: 1 },
+    { id: 'bread', name: 'Fresh Bread', emoji: '🍞', rarity: 'Common', bonus: 1 },
+    { id: 'banana', name: 'Ripe Banana', emoji: '🍌', rarity: 'Common', bonus: 1 },
+    { id: 'cheese', name: 'Cheddar Wedge', emoji: '🧀', rarity: 'Common', bonus: 2 },
+    
+    { id: 'burger', name: 'Double Burger', emoji: '🍔', rarity: 'Rare', bonus: 4 },
+    { id: 'pizza', name: 'Pepperoni Pizza', emoji: '🍕', rarity: 'Rare', bonus: 5 },
+    { id: 'taco', name: 'Spicy Taco', emoji: '🌮', rarity: 'Rare', bonus: 5 },
+    
+    { id: 'sushi', name: 'Dragon Roll', emoji: '🍣', rarity: 'Epic', bonus: 12 },
+    { id: 'ramen', name: 'Tonkotsu Ramen', emoji: '🍜', rarity: 'Epic', bonus: 15 },
+    { id: 'steak', name: 'Wagyu Steak', emoji: '🥩', rarity: 'Epic', bonus: 18 },
+    
+    { id: 'cake', name: 'Golden Cake', emoji: '🎂', rarity: 'Legendary', bonus: 40 },
+    { id: 'ambrosia', name: 'Royal Feast', emoji: '👑', rarity: 'Legendary', bonus: 75 }
+];
 
-const boxes = {
-    basic: {
-        name: "Basic Box",
-        price: 25,
-        luck: 1
-    },
-
-    premium: {
-        name: "Premium Box",
-        price: 100,
-        luck: 1.7
-    },
-
-    legendary: {
-        name: "Legendary Box",
-        price: 300,
-        luck: 2.6
-    }
+// Loot Box Rarity Probabilities (Must add up to 100)
+const boxOdds = {
+    basic:  { Common: 70, Rare: 25, Epic: 4,  Legendary: 1 },
+    silver: { Common: 35, Rare: 45, Epic: 15, Legendary: 5 },
+    golden: { Common: 5,  Rare: 35, Epic: 40, Legendary: 20 }
 };
 
-// =====================================
-// FOOD DATABASE
-// =====================================
+// DOM Elements
+const moneyEl = document.getElementById('money');
+const clickValueEl = document.getElementById('click-value');
+const coinBtn = document.getElementById('coin-btn');
+const buyBtns = document.querySelectorAll('.buy-btn');
+const unboxResultEl = document.getElementById('unbox-result');
+const foodGridEl = document.getElementById('food-grid');
+const unlockedCountEl = document.getElementById('unlocked-count');
+const totalCountEl = document.getElementById('total-count');
 
-const foods = [
-    // COMMON
-    { name: "Apple", emoji: "🍎", rarity: "Common" },
-    { name: "Banana", emoji: "🍌", rarity: "Common" },
-    { name: "Bread", emoji: "🍞", rarity: "Common" },
-    { name: "Cookie", emoji: "🍪", rarity: "Common" },
-    { name: "Carrot", emoji: "🥕", rarity: "Common" },
-    { name: "Potato", emoji: "🥔", rarity: "Common" },
-    { name: "Egg", emoji: "🥚", rarity: "Common" },
-    { name: "Donut", emoji: "🍩", rarity: "Common" },
-
-    // UNCOMMON
-    { name: "Burger", emoji: "🍔", rarity: "Uncommon" },
-    { name: "Pizza", emoji: "🍕", rarity: "Uncommon" },
-    { name: "Sandwich", emoji: "🥪", rarity: "Uncommon" },
-    { name: "Taco", emoji: "🌮", rarity: "Uncommon" },
-    { name: "Popcorn", emoji: "🍿", rarity: "Uncommon" },
-    { name: "Pancakes", emoji: "🥞", rarity: "Uncommon" },
-
-    // RARE
-    { name: "Sushi", emoji: "🍣", rarity: "Rare" },
-    { name: "Ramen", emoji: "🍜", rarity: "Rare" },
-    { name: "Steak", emoji: "🥩", rarity: "Rare" },
-    { name: "Shrimp", emoji: "🍤", rarity: "Rare" },
-    { name: "Ice Cream", emoji: "🍨", rarity: "Rare" },
-
-    // EPIC
-    { name: "Lobster", emoji: "🦞", rarity: "Epic" },
-    { name: "Birthday Cake", emoji: "🎂", rarity: "Epic" },
-    { name: "Chocolate Cake", emoji: "🍰", rarity: "Epic" },
-    { name: "Golden Apple", emoji: "🍏", rarity: "Epic" },
-
-    // LEGENDARY
-    { name: "Golden Burger", emoji: "🍔✨", rarity: "Legendary" },
-    { name: "Golden Pizza", emoji: "🍕✨", rarity: "Legendary" },
-    { name: "Royal Cake", emoji: "🎂👑", rarity: "Legendary" },
-
-    // MYTHIC
-    { name: "Rainbow Donut", emoji: "🍩🌈", rarity: "Mythic" },
-    { name: "Cosmic Burger", emoji: "🍔🌌", rarity: "Mythic" },
-    { name: "Galaxy Pizza", emoji: "🍕🌌", rarity: "Mythic" }
-];
-
-// =====================================
-// RARITY SETTINGS
-// =====================================
-
-// Higher rarity = higher index.
-// Luck increases the weight of higher rarities.
-
-const raritySettings = [
-    { name: "Common", weight: 55 },
-    { name: "Uncommon", weight: 25 },
-    { name: "Rare", weight: 12 },
-    { name: "Epic", weight: 5 },
-    { name: "Legendary", weight: 2.5 },
-    { name: "Mythic", weight: 0.5 }
-];
-
-// =====================================
-// SAVE AND LOAD
-// =====================================
-
-function saveGame() {
-    const saveData = {
-        money,
-        boxesOpened,
-        inventory,
-        clickValue
-    };
-
-    localStorage.setItem(
-        "foodBoxSimulatorSave",
-        JSON.stringify(saveData)
-    );
-}
-
-function loadGame() {
-    const saved = localStorage.getItem(
-        "foodBoxSimulatorSave"
-    );
-
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-
-            money = Math.max(0, Number(data.money) || 0);
-            boxesOpened = Math.max(0, Number(data.boxesOpened) || 0);
-            clickValue = Math.max(1, Number(data.clickValue) || 1);
-
-            if (
-                data.inventory &&
-                typeof data.inventory === "object" &&
-                !Array.isArray(data.inventory)
-            ) {
-                inventory = data.inventory;
-            }
-        } catch (error) {
-            console.error("Could not load save:", error);
-        }
-    }
-
+// Initialize Game
+function init() {
+    totalCountEl.textContent = foods.length;
+    renderInventory();
     updateUI();
 }
 
-// =====================================
-// MONEY SYSTEM
-// =====================================
-
-function earnMoney() {
+// Click the Coin
+coinBtn.addEventListener('click', () => {
     money += clickValue;
-
     updateUI();
-    saveGame();
-}
+});
 
-document.getElementById("coinButton").addEventListener(
-    "click",
-    earnMoney
-);
+// Buy a Box
+buyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const boxType = btn.dataset.box;
+        const cost = parseInt(btn.dataset.cost, 10);
 
-// =====================================
-// RANDOM RARITY SYSTEM
-// =====================================
-
-function getRandomRarity(luck) {
-
-    let weightedRarities = raritySettings.map((rarity, index) => {
-
-        // Apply luck more strongly to higher rarities.
-        const boostedWeight =
-            rarity.weight * Math.pow(luck, index * 0.85);
-
-        return {
-            name: rarity.name,
-            weight: boostedWeight
-        };
+        if (money >= cost) {
+            money -= cost;
+            openBox(boxType);
+            updateUI();
+        }
     });
+});
 
-    const totalWeight = weightedRarities.reduce(
-        (sum, rarity) => sum + rarity.weight,
-        0
-    );
+// Roll Rarity and Select Food
+function openBox(boxType) {
+    const odds = boxOdds[boxType];
+    const roll = Math.random() * 100;
+    let cumulative = 0;
+    let chosenRarity = 'Common';
 
-    let random = Math.random() * totalWeight;
-
-    for (const rarity of weightedRarities) {
-        random -= rarity.weight;
-
-        if (random <= 0) {
-            return rarity.name;
+    for (const [rarity, chance] of Object.entries(odds)) {
+        cumulative += chance;
+        if (roll < cumulative) {
+            chosenRarity = rarity;
+            break;
         }
     }
 
-    return "Common";
-}
+    // Filter foods matching the rolled rarity
+    const possibleFoods = foods.filter(f => f.rarity === chosenRarity);
+    const wonFood = possibleFoods[Math.floor(Math.random() * possibleFoods.length)];
 
-// =====================================
-// RANDOM FOOD SYSTEM
-// =====================================
-
-function getRandomFood(rarity) {
-
-    const availableFoods = foods.filter(
-        food => food.rarity === rarity
-    );
-
-    const randomIndex = Math.floor(
-        Math.random() * availableFoods.length
-    );
-
-    return availableFoods[randomIndex];
-}
-
-// =====================================
-// OPEN BOX SYSTEM
-// =====================================
-
-function openBox(boxType) {
-
-    const box = boxes[boxType];
-
-    if (!box) return;
-
-    // Check money
-    if (money < box.price) {
-
-        showMessage(
-            "❌ Not enough money!",
-            `You need $${box.price} to open this box.`
-        );
-
-        return;
+    const isNew = !unlockedFoods.has(wonFood.id);
+    if (isNew) {
+        unlockedFoods.add(wonFood.id);
+        recalculateClickPower();
+        renderInventory();
     }
 
-    // Pay for the box
-    money -= box.price;
-
-    // Generate rarity and food
-    const rarity = getRandomRarity(box.luck);
-    const food = getRandomFood(rarity);
-
-    // Add to inventory
-    inventory[food.name] = (inventory[food.name] || 0) + 1;
-
-    // Increase box count
-    boxesOpened++;
-
-    // Display result
-    showFoodResult(food, box);
-
-    // Update everything
-    updateUI();
-    updateCollection();
-    saveGame();
+    showResult(wonFood, isNew);
 }
 
-// =====================================
-// DISPLAY BOX RESULT
-// =====================================
-
-function showFoodResult(food, box) {
-
-    const result = document.getElementById("result");
-
-    const rarityClass = getRarityClass(food.rarity);
-
-    result.innerHTML = `
-        <p>🎉 You opened a ${box.name}!</p>
-
-        <div class="result-food">
-            ${food.emoji}
-        </div>
-
-        <div class="result-name">
-            ${food.name}
-        </div>
-
-        <div class="result-rarity ${rarityClass}">
-            ${food.rarity.toUpperCase()}
-        </div>
-
-        <p>You unlocked ${food.name}!</p>
-
-        <p style="color:#f9cf54">
-            You now have ${inventory[food.name]}!
-        </p>
-    `;
-
-    // Restart reveal animation
-    const icon = result.querySelector(".result-food");
-
-    icon.style.animation = "none";
-    void icon.offsetWidth;
-    icon.style.animation = "reveal 0.5s ease";
+// Recalculate Total Click Value
+function recalculateClickPower() {
+    let total = 1; // Base click value
+    unlockedFoods.forEach(id => {
+        const food = foods.find(f => f.id === id);
+        if (food) total += food.bonus;
+    });
+    clickValue = total;
 }
 
-// =====================================
-// MESSAGE SYSTEM
-// =====================================
+// Display Unboxing Result
+function showResult(food, isNew) {
+    unboxResultEl.className = `unbox-result rarity-${food.rarity}`;
+    
+    // Trigger reflow to restart CSS animation
+    void unboxResultEl.offsetWidth; 
 
-function showMessage(title, message) {
-
-    const result = document.getElementById("result");
-
-    result.innerHTML = `
-        <h3>${title}</h3>
-        <p>${message}</p>
-    `;
+    if (isNew) {
+        unboxResultEl.innerHTML = `🎉 NEW UNLOCK! You got ${food.emoji} <strong>${food.name}</strong> (${food.rarity})! (+$${food.bonus}/click)`;
+    } else {
+        const refund = Math.max(1, Math.floor(food.bonus / 2));
+        money += refund;
+        unboxResultEl.innerHTML = `You got a duplicate ${food.emoji} <strong>${food.name}</strong> (${food.rarity}). Converted to +$${refund}!`;
+    }
 }
 
-// =====================================
-// RARITY CSS CLASSES
-// =====================================
-
-function getRarityClass(rarity) {
-
-    const classes = {
-        Common: "common",
-        Uncommon: "uncommon",
-        Rare: "rare",
-        Epic: "epic",
-        Legendary: "legendary-text",
-        Mythic: "mythic"
-    };
-
-    return classes[rarity] || "common";
-}
-
-// =====================================
-// UPDATE MAIN UI
-// =====================================
-
-function updateUI() {
-
-    document.getElementById("money").textContent =
-        "$" + money.toLocaleString();
-
-    const unlockedCount = foods.filter(
-        food => (inventory[food.name] || 0) > 0
-    ).length;
-
-    document.getElementById("foodCount").textContent =
-        unlockedCount + " / " + foods.length;
-
-    document.getElementById("boxCount").textContent =
-        boxesOpened;
-
-    document.getElementById("clickValue").textContent =
-        clickValue;
-}
-
-// =====================================
-// FOOD COLLECTION
-// =====================================
-
-function updateCollection() {
-
-    const collection = document.getElementById(
-        "foodCollection"
-    );
-
-    collection.innerHTML = "";
+// Render Food Collection Grid
+function renderInventory() {
+    foodGridEl.innerHTML = '';
+    unlockedCountEl.textContent = unlockedFoods.size;
 
     foods.forEach(food => {
+        const isUnlocked = unlockedFoods.has(food.id);
+        const card = document.createElement('div');
+        card.className = `food-card ${isUnlocked ? `rarity-${food.rarity}` : 'locked'}`;
 
-        const quantity = inventory[food.name] || 0;
-        const unlocked = quantity > 0;
-
-        const rarityClass = getRarityClass(food.rarity);
-
-        const borderClass = {
-            Common: "common-border",
-            Uncommon: "uncommon-border",
-            Rare: "rare-border",
-            Epic: "epic-border",
-            Legendary: "legendary-border",
-            Mythic: "mythic-border"
-        }[food.rarity];
-
-        const card = document.createElement("div");
-
-        card.className = `food-card ${borderClass}`;
-
-        if (unlocked) {
-
-            card.innerHTML = `
-                <div class="food-icon">${food.emoji}</div>
-                <h3>${food.name}</h3>
-                <p class="${rarityClass}">
-                    ${food.rarity}
-                </p>
-                <p class="quantity">
-                    Owned: ${quantity}
-                </p>
-            `;
-
-        } else {
-
-            card.innerHTML = `
-                <div class="food-icon">❓</div>
-                <h3>???</h3>
-                <p class="${rarityClass}">
-                    ${food.rarity}
-                </p>
-                <p class="quantity">
-                    Not unlocked
-                </p>
-            `;
-        }
-
-        collection.appendChild(card);
+        card.innerHTML = `
+            <div class="food-emoji">${isUnlocked ? food.emoji : '❓'}</div>
+            <div class="food-name">${isUnlocked ? food.name : 'Locked'}</div>
+            <div class="food-rarity">${food.rarity}</div>
+            <div class="food-bonus">${isUnlocked ? `+$${food.bonus}/click` : '???'}</div>
+        `;
+        foodGridEl.appendChild(card);
     });
 }
 
-// =====================================
-// RESET GAME
-// =====================================
+// Update Numbers & Button States
+function updateUI() {
+    moneyEl.textContent = money;
+    clickValueEl.textContent = clickValue;
+    coinBtn.textContent = `+$${clickValue}`;
 
-document.getElementById("resetButton").addEventListener(
-    "click",
-    function() {
+    buyBtns.forEach(btn => {
+        const cost = parseInt(btn.dataset.cost, 10);
+        btn.disabled = money < cost;
+    });
+}
 
-        const confirmReset = confirm(
-            "Are you sure you want to reset your entire game?"
-        );
-
-        if (!confirmReset) return;
-
-        money = 0;
-        boxesOpened = 0;
-        inventory = {};
-        clickValue = 1;
-
-        localStorage.removeItem("foodBoxSimulatorSave");
-
-        updateUI();
-        updateCollection();
-
-        showMessage(
-            "🔄 Game Reset!",
-            "Your new food collection adventure starts now!"
-        );
-    }
-);
-
-// =====================================
-// START GAME
-// =====================================
-
-loadGame();
-updateCollection();
+init();
